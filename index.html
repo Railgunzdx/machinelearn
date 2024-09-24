@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Recommendation System</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Game Recommendation System</h1>
+
+        <!-- Search Bar -->
+        <input type="text" id="searchInput" placeholder="Enter a game name or genre" />
+        <button onclick="searchGame()">Search</button>
+
+        <!-- Popular/Random Games Section -->
+        <div id="popularGames">
+            <h2>Random Games:</h2>
+            <div id="popularGamesList"></div>
+        </div>
+
+        <!-- Search Results -->
+        <div id="searchResults">
+            <h2>Search Results:</h2>
+            <div id="gameList"></div>
+        </div>
+
+        <!-- Recommendations -->
+        <div id="recommendations">
+            <h2>Recommended Games:</h2>
+            <div id="recommendedGames"></div>
+        </div>
+    </div>
+
+    <script>
+        // Automatically fetch some popular or random games when the page loads
+        document.addEventListener("DOMContentLoaded", function() {
+            fetchPopularGames();
+        });
+
+        // Function to fetch popular/random games
+        function fetchPopularGames() {
+            fetch('/popular')  // Backend endpoint for popular/random games
+                .then(response => response.json())
+                .then(data => displayPopularGames(data.games));
+        }
+
+        // Fetch search results and recommendations
+        function searchGame() {
+            const query = document.getElementById('searchInput').value;
+            fetch(`/search?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    displayResults(data.results);
+                    displayRecommendations(data.recommendations);
+                });
+        }
+
+        // Display search results
+        function displayResults(games) {
+            const gameListDiv = document.getElementById('gameList');
+            gameListDiv.innerHTML = '';
+            if (games.length === 0) {
+                gameListDiv.innerHTML = `<p>No games found for your search.</p>`;
+            } else {
+                games.forEach(game => {
+                    const gameDiv = document.createElement('div');
+                    gameDiv.classList.add('game-item');
+                    gameDiv.innerHTML = `<h3>${game.name}</h3><p>Genres: ${game.genre.join(', ')}</p>`;
+                    gameListDiv.appendChild(gameDiv);
+                });
+            }
+        }
+
+        // Display recommendations
+        function displayRecommendations(games) {
+            const recommendationsDiv = document.getElementById('recommendedGames');
+            recommendationsDiv.innerHTML = '';
+            if (games.length === 0) {
+                recommendationsDiv.innerHTML = `<p>No recommendations available.</p>`;
+            } else {
+                games.forEach(game => {
+                    const gameDiv = document.createElement('div');
+                    gameDiv.classList.add('game-item');
+                    gameDiv.innerHTML = `<h3>${game.name}</h3><p>Genres: ${game.genre.join(', ')}</p>`;
+                    recommendationsDiv.appendChild(gameDiv);
+                });
+            }
+        }
+
+        // Display popular games on the front page
+        function displayPopularGames(games) {
+            const popularGamesDiv = document.getElementById('popularGamesList');
+            popularGamesDiv.innerHTML = '';
+            games.forEach(game => {
+                const gameDiv = document.createElement('div');
+                gameDiv.classList.add('game-item');
+                gameDiv.innerHTML = `<h3>${game.name}</h3><p>Genres: ${game.genre.join(', ')}</p>`;
+                popularGamesDiv.appendChild(gameDiv);
+            });
+        }
+    </script>
+</body>
+</html>
